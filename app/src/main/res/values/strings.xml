@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">cye2</string>
+    <string name="balance">Balance:</string>
+    <string name="button_expense">Expense</string>
+    <string name="enter_summ">введите сумму</string>
+    <string name="select_category">Выбирите категорию расходов</string>
+    <string name="enter_category">..или создайте</string>
+    <string name="add_category">Добавить категорию</string>
+    <string name="add_expense">добавить расход</string>
+    <string name="headerListExpense">Список всех расходов</string>
+</resources>
