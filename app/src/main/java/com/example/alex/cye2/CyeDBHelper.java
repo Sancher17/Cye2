@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 public class CyeDBHelper extends SQLiteOpenHelper {
-    public static final int DB_VERSION = 2;
+    public static final int DB_VERSION = 3;
     public static final String DB_NAME = "CYE";
     public static final String TABLE_EXPENSE = "expense";
     public static final String TABLE_EXPENSE_CATEGORY = "expense_category";
@@ -38,7 +38,7 @@ public class CyeDBHelper extends SQLiteOpenHelper {
         // int oldVersion - текущая версия БД
         // int newVersion - новая версия из помощника SQLite  - DB_VERSION
         if (oldVersion < 2) {
-            db.execSQL("DROP TABLE "+ TABLE_EXPENSE);
+           // db.execSQL("DROP TABLE "+ TABLE_EXPENSE);
            // db.execSQL("DROP TABLE " + TABLE_EXPENSE_CATEGORY);
         }
 

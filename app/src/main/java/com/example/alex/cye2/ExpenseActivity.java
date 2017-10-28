@@ -7,8 +7,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -40,9 +41,7 @@ public class ExpenseActivity extends AppCompatActivity {
     private CursorAdapter listAdapter;
     private long mDate = System.currentTimeMillis();
     private int sum;
-
-    //final String LOG_TAG = "myLogs";
-    //Log.d(LOG_TAG, "scroll: firstVisibleIt );
+    private static final String TAG = "ExpenseActivity";
 
     SimpleDateFormat sdf = new SimpleDateFormat("dd MMM");
     String dateString = sdf.format(mDate);
@@ -51,146 +50,163 @@ public class ExpenseActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_expense);
-
-        // ListView - должен выводить список категорий расходо / expense_category
-        final ListView listView = (ListView) findViewById(R.id.listView_categoryExpense);
-
+        setTitle("ExpenseActivity");
+        /*определяем виджет для списка категорий*/
+        final ListView listView = findViewById(R.id.listView_categoryExpense);
+        /*подключаемся к БД и выводим список категорий в listView*/
         try {
             cyeDbHelper = new CyeDBHelper(this);
             db = cyeDbHelper.getReadableDatabase();
             Toast.makeText(this, " Версия БД - " + String.valueOf(db.getVersion()), Toast.LENGTH_LONG).show();
-
             cursor = db.query(TABLE_EXPENSE_CATEGORY, new String[]{"_id", "name"}, null, null, null, null, null);
-
             listAdapter = new SimpleCursorAdapter(ExpenseActivity.this, android.R.layout.simple_list_item_1,
-                    cursor,
-                    new String[]{"name"}, //это то что мы выведем на экран
-                    new int[]{android.R.id.text1},
-                    0);
+                    cursor, new String[]{"name"}, //это то что мы выведем на экран
+                    new int[]{android.R.id.text1}, 0);
             listView.setAdapter(listAdapter);
-
         } catch (SQLiteException e) {
             System.out.println("ОШИБКА  " + e);
         }
 
-        //кнопка добавить категорию
-        final EditText editCategoryExpense = findViewById(R.id.editText_addCategoryExpense);
-        final String enteringText = editCategoryExpense.getText().toString();
-        mButtonAddCategoryExpense = findViewById(R.id.button_addCategoryExpense);
-        mButtonAddCategoryExpense.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    if (enteringText.length() > 3) {
-                        db = getBaseContext().openOrCreateDatabase(DB_NAME, MODE_PRIVATE, null);
-                        ContentValues expenseValues = new ContentValues();
-                        expenseValues.put(KEY_NAME, enteringText);
-                        db.insert(TABLE_EXPENSE_CATEGORY, null, expenseValues);
-
-                        //Обновляем ListView чтобы увидеть последнюю добавленную категорию
-                    /*Начало*/
-                        db = cyeDbHelper.getReadableDatabase();
-                        cursor = db.query(TABLE_EXPENSE_CATEGORY, new String[]{"_id", "name"}, null, null, null, null, null);
-                        listAdapter = new SimpleCursorAdapter(ExpenseActivity.this, android.R.layout.simple_list_item_1,
-                                cursor, new String[]{"name"}, //это то что мы выведем на экран
-                                new int[]{android.R.id.text1}, 0);
-                        listView.setAdapter(listAdapter);
-                    /*конец*/
-                        //Прячем клавиатуру
-                    /*начало*/
-                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                        if (imm != null) {
-                            imm.hideSoftInputFromWindow(mButtonAddCategoryExpense.getWindowToken(),
-                                    InputMethodManager.HIDE_NOT_ALWAYS);
-                        }
-                    /*конец*/
-                    } else {
-                        Toast.makeText(ExpenseActivity.this, " Название категории не может быть таким коротким ", Toast.LENGTH_LONG).show();
-                    }
-
-
-                } catch (SQLiteException e) {
-                    System.out.println("ОШИБКА  " + e);
-                }
-
-            }
-        });
-
-
-        /* кнопка добавить расход / добавлять будем в таблицу expense*
-        /* НАЧАЛО */
-        final EditText editSum = findViewById(R.id.editText_addSum);
-
-
+        /*BUTTON добавить расход / добавлять будем в таблицу expense*/
         mButtonAddExpense = findViewById(R.id.button_expense2);
         mButtonAddExpense.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-
                 db = getBaseContext().openOrCreateDatabase(DB_NAME, MODE_PRIVATE, null);
-                //из виджета переводим в String
+
+                /*Читаем введенную сумму*/
+                final EditText editSum = findViewById(R.id.editText_addSum);
                 final String value = editSum.getText().toString();
-                //из String в int
                 sum = Integer.parseInt(value);
-
-                //обработка имени
-                // 1. из editText
-                    /*,  enteringText   */
-
-                // 2. из ListView
-                     /*  нужно обработать слушателя из ListView */
-                final String[] itemClick = new String[1];
-                listView.setOnItemClickListener(new ListView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View itemClicked, int position, long id) {
-
-                        Toast.makeText(getApplicationContext(), "Потратил"+((TextView) itemClicked).getText(), Toast.LENGTH_SHORT).show();
-                        TextView textView = (TextView) itemClicked;
-                        itemClick[0] = textView.getText().toString();
+                sum = sum - (sum * 2);
 
 
-                    }
-                });
+                /*Читаем введенную категорию расходов*/
+                final EditText editCategory = findViewById(R.id.editText_addCategoryExpense);
+                final String value1 = editCategory.getText().toString();
 
-                ContentValues expenseValues = new ContentValues();
-                //  expenseValues.put(KEY_DATE, dateString);
-                expenseValues.put(KEY_NAME, String.valueOf(itemClick));
-                /// expenseValues.put(KEY_SUM, sum); //введите сумму
-                db.insert(TABLE_EXPENSE, null, expenseValues);
+                if (editCategory != null){
+
+                /*добавляем расход в БД таблицу EXPENSE*/
+                    ContentValues expenseValues = new ContentValues();
+                    expenseValues.put(KEY_DATE, dateString);
+                    expenseValues.put(KEY_NAME, value1);
+                    expenseValues.put(KEY_SUM, sum); //введите сумму
+                    db.insert(TABLE_EXPENSE, null, expenseValues);
+
+                /*добавляем категориб в БД таблицу EXPENSE_CATEGORY*/
+                    ContentValues expenseValues1 = new ContentValues();
+                    expenseValues1.put(KEY_NAME, value1);
+                    db.insert(TABLE_EXPENSE_CATEGORY, null, expenseValues1);
+
+                    Toast.makeText(ExpenseActivity.this, "расход добавлен", Toast.LENGTH_SHORT).show();
+                /*возврат в MainActivity*/
+                    Intent intent = new Intent(ExpenseActivity.this, MainActivity.class);
+                    startActivity(intent);
+
+                }else {
+
+                /*Пользователь выбирает категорию из списка*/
 
 
-
-
-
-                //если ввели категорию в editText то она добавиться в таблицу TABLE_EXPENSE_CATEGORY
-
-
-                //Прячем клавиатуру
-                    /*начало*/
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                if (imm != null) {
-                    imm.hideSoftInputFromWindow(mButtonAddCategoryExpense.getWindowToken(),
-                            InputMethodManager.HIDE_NOT_ALWAYS);
+                    Toast.makeText(ExpenseActivity.this, "расход добавлен", Toast.LENGTH_SHORT).show();
+                /*возврат в MainActivity*/
+                    Intent intent = new Intent(ExpenseActivity.this, MainActivity.class);
+                    startActivity(intent);
                 }
-                    /*конец*/
-
-
             }
-
         });
-        /*конец */
-
+//         /*Прячем клавиатуру*/
+//        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+//        if (imm != null) {
+//            imm.hideSoftInputFromWindow(mButtonAddCategoryExpense.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+//        }
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d(TAG, "onStart called");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG, "onResume called");
+    }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        Log.d(TAG, "onDestroy called");
+    }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d(TAG, "onPause called");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d(TAG, "onStop called");
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        Log.d(TAG, "onRestart called");
     }
 
 }
+
+
+//    //кнопка добавить категорию НАЧАЛО
+//    final EditText editCategoryExpense = findViewById(R.id.editText_addCategoryExpense);
+//    final String enteringText = editCategoryExpense.getText().toString();
+//        mButtonAddCategoryExpense = findViewById(R.id.button_addCategoryExpense);
+//                mButtonAddCategoryExpense.setOnClickListener(new View.OnClickListener() {
+//@Override
+//public void onClick(View v) {
+//        try {
+//        if (enteringText.length() > 3) {
+//        db = getBaseContext().openOrCreateDatabase(DB_NAME, MODE_PRIVATE, null);
+//        ContentValues expenseValues = new ContentValues();
+//        expenseValues.put(KEY_NAME, enteringText);
+//        db.insert(TABLE_EXPENSE_CATEGORY, null, expenseValues);
+//
+//        //Обновляем ListView чтобы увидеть последнюю добавленную категорию
+//                    /*Начало*/
+//        db = cyeDbHelper.getReadableDatabase();
+//        cursor = db.query(TABLE_EXPENSE_CATEGORY, new String[]{"_id", "name"}, null, null, null, null, null);
+//        listAdapter = new SimpleCursorAdapter(ExpenseActivity.this, android.R.layout.simple_list_item_1,
+//        cursor, new String[]{"name"}, //это то что мы выведем на экран
+//        new int[]{android.R.id.text1}, 0);
+//        listView.setAdapter(listAdapter);
+//                    /*конец*/
+//        //Прячем клавиатуру
+//                    /*начало*/
+//        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+//        if (imm != null) {
+//        imm.hideSoftInputFromWindow(mButtonAddCategoryExpense.getWindowToken(),
+//        InputMethodManager.HIDE_NOT_ALWAYS);
+//        }
+//                    /*конец*/
+//        } else {
+//        Toast.makeText(ExpenseActivity.this, " Название категории не может быть таким коротким ", Toast.LENGTH_LONG).show();
+//        }
+//
+//
+//        } catch (SQLiteException e) {
+//        System.out.println("ОШИБКА  " + e);
+//        }
+//
+//        }
+//        });
+
+
+
 
 
 

@@ -26,6 +26,7 @@ public class CategoryExpenseActivity extends ListActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ListView listView = getListView();
+        setTitle("CategoryExpenseActivity");
 
 
         try {
@@ -34,7 +35,7 @@ public class CategoryExpenseActivity extends ListActivity {
             db = cyeDbHelper.getReadableDatabase();
             Toast.makeText(this, " Версия БД - " + String.valueOf(db.getVersion()), Toast.LENGTH_LONG).show();
 
-            cursor = db.query(TABLE_EXPENSE, new String[]{"_id", "name" }, null, null, null, null, null);
+            cursor = db.query(TABLE_EXPENSE_CATEGORY, new String[]{"_id", "name" }, null, null, null, null, null);
 
             CursorAdapter listAdapter = new SimpleCursorAdapter(CategoryExpenseActivity.this, android.R.layout.simple_list_item_1,
                     cursor,
