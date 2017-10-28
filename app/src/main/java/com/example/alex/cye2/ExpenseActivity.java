@@ -80,12 +80,11 @@ public class ExpenseActivity extends AppCompatActivity {
                 sum = Integer.parseInt(value);
                 sum = sum - (sum * 2);
 
-
                 /*Читаем введенную категорию расходов*/
                 final EditText editCategory = findViewById(R.id.editText_addCategoryExpense);
                 final String value1 = editCategory.getText().toString();
 
-                if (editCategory != null){
+                if (editCategory != null) {
 
                 /*добавляем расход в БД таблицу EXPENSE*/
                     ContentValues expenseValues = new ContentValues();
@@ -104,15 +103,34 @@ public class ExpenseActivity extends AppCompatActivity {
                     Intent intent = new Intent(ExpenseActivity.this, MainActivity.class);
                     startActivity(intent);
 
-                }else {
+                } else {
 
                 /*Пользователь выбирает категорию из списка*/
+                    listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                            String value2 = String.valueOf(view);
+
+                    /*добавляем расход в БД таблицу EXPENSE*/
+                            ContentValues expenseValues = new ContentValues();
+                            expenseValues.put(KEY_DATE, dateString);
+                            expenseValues.put(KEY_NAME, value2);
+                            expenseValues.put(KEY_SUM, sum); //введите сумму
+                            db.insert(TABLE_EXPENSE, null, expenseValues);
+
+                    /*добавляем категориб в БД таблицу EXPENSE_CATEGORY*/
+                            ContentValues expenseValues1 = new ContentValues();
+                            expenseValues1.put(KEY_NAME, value2);
+                            db.insert(TABLE_EXPENSE_CATEGORY, null, expenseValues1);
+
+                            Toast.makeText(ExpenseActivity.this, "расход добавлен", Toast.LENGTH_SHORT).show();
+                    /*возврат в MainActivity*/
+                            Intent intent = new Intent(ExpenseActivity.this, MainActivity.class);
+                            startActivity(intent);
+                        }
+                    });
 
 
-                    Toast.makeText(ExpenseActivity.this, "расход добавлен", Toast.LENGTH_SHORT).show();
-                /*возврат в MainActivity*/
-                    Intent intent = new Intent(ExpenseActivity.this, MainActivity.class);
-                    startActivity(intent);
                 }
             }
         });
