@@ -6,10 +6,13 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.CursorAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.sql.SQLException;
@@ -39,7 +42,7 @@ public class ExpenseListActivity extends AppCompatActivity {
         Log.d(TAG, "onStart called");
         setContentView(R.layout.activity_expense_list);
 
-        ListView listView = (ListView) findViewById(R.id.listView_expenseList);
+        ListView listView = findViewById(R.id.listView_expenseList);
 
         sqLiteOpenHelper = new CyeDBHelper(this);
         db = getBaseContext().openOrCreateDatabase(DB_NAME, MODE_PRIVATE, null);
@@ -51,15 +54,28 @@ public class ExpenseListActivity extends AppCompatActivity {
         listView.setAdapter(listAdapter);
         Toast.makeText(this, String.valueOf(db.getVersion()), Toast.LENGTH_LONG).show();
 
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View itemClicked, int position, long id) {
+                Toast.makeText(getApplicationContext(), ((TextView) itemClicked).getText(),
+                        Toast.LENGTH_SHORT).show();
+
+            }
+        });
+
+
+
+
+
+//        listView.setOnItemClickListener(new ListView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> parent, View clicked, int i, long l) {
+//                String textView = clicked.toString();
+//                Toast.makeText(getApplicationContext(), textView, Toast.LENGTH_SHORT).show();
+//            }
+//        });
 
     }
-
-//    @Override
-//    protected void onDestroy() {
-//        super.onDestroy();
-//        cursor.close();
-//        db.close();
-//    }
 
     @Override
     protected void onStart() {

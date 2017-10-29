@@ -84,7 +84,8 @@ public class ExpenseActivity extends AppCompatActivity {
                 final EditText editCategory = findViewById(R.id.editText_addCategoryExpense);
                 final String value1 = editCategory.getText().toString();
 
-                if (editCategory != null) {
+                /*Пользователь выбирает категорию из списка*/
+                if (editCategory.length() > 1) {
 
                 /*добавляем расход в БД таблицу EXPENSE*/
                     ContentValues expenseValues = new ContentValues();
@@ -104,12 +105,11 @@ public class ExpenseActivity extends AppCompatActivity {
                     startActivity(intent);
 
                 } else {
-
-                /*Пользователь выбирает категорию из списка*/
                     listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                         @Override
-                        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                            String value2 = String.valueOf(view);
+                        public void onItemClick(AdapterView<?> parent, View view, int i, long l) {
+                            String value2 = (String) ((TextView) view).getText();
+                            Toast.makeText(getApplicationContext(), value2, Toast.LENGTH_SHORT).show();
 
                     /*добавляем расход в БД таблицу EXPENSE*/
                             ContentValues expenseValues = new ContentValues();
@@ -118,7 +118,7 @@ public class ExpenseActivity extends AppCompatActivity {
                             expenseValues.put(KEY_SUM, sum); //введите сумму
                             db.insert(TABLE_EXPENSE, null, expenseValues);
 
-                    /*добавляем категориб в БД таблицу EXPENSE_CATEGORY*/
+                    /*добавляем категорию в БД таблицу EXPENSE_CATEGORY*/
                             ContentValues expenseValues1 = new ContentValues();
                             expenseValues1.put(KEY_NAME, value2);
                             db.insert(TABLE_EXPENSE_CATEGORY, null, expenseValues1);
@@ -129,8 +129,6 @@ public class ExpenseActivity extends AppCompatActivity {
                             startActivity(intent);
                         }
                     });
-
-
                 }
             }
         });
