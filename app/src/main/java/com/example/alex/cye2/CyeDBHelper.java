@@ -44,9 +44,6 @@ public class CyeDBHelper extends SQLiteOpenHelper {
 
         if (oldVersion < 2){
             db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_EXPENSE + " (_id integer primary key autoincrement, date TEXT, name TEXT, sum INTEGER)");
-            insertExpense(db, "1980", "Alex", 50);
-            insertExpense(db, "2000", "King", 150);
-            insertExpense(db, "3000", "Poll", 25);
             db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_EXPENSE_CATEGORY + " (_id integer primary key autoincrement, name TEXT)");
             insertExpenseCategory(db, "Магазин");
         }
@@ -102,6 +99,8 @@ public class CyeDBHelper extends SQLiteOpenHelper {
 //    ALTER TABLE DRINK RENAME TO FOOD
 //удаление
 //    DROP TABLE DRINK
+//удалить строку
+//DELETE FROM `table` WHERE `number` = номер
 /*Метод onCreate() вызывается при создании базы данных Помощник SQLite отвечает за то,
  чтобы база данных SQLite была создана  в момент ее первого использования. Сначала на устройстве создается
  пустая база данных, после чего вызывается метод onCreate() помощника SQLite.

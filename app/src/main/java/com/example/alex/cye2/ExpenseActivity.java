@@ -43,7 +43,7 @@ public class ExpenseActivity extends AppCompatActivity {
     private int sum;
     private static final String TAG = "ExpenseActivity";
 
-    SimpleDateFormat sdf = new SimpleDateFormat("dd MMM");
+    SimpleDateFormat sdf = new SimpleDateFormat("dd MMM hh:mm");
     String dateString = sdf.format(mDate);
 
     @Override
@@ -67,76 +67,92 @@ public class ExpenseActivity extends AppCompatActivity {
             System.out.println("ОШИБКА  " + e);
         }
 
-        /*BUTTON добавить расход / добавлять будем в таблицу expense*/
+    /*ВЕТКА 1 -  пользователь создает новую категорию*/
         mButtonAddExpense = findViewById(R.id.button_expense2);
         mButtonAddExpense.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 db = getBaseContext().openOrCreateDatabase(DB_NAME, MODE_PRIVATE, null);
-
-                /*Читаем введенную сумму*/
-                final EditText editSum = findViewById(R.id.editText_addSum);
-                final String value = editSum.getText().toString();
+            /*Читаем введенную категорию*/
+                EditText editCategory = findViewById(R.id.editText_addCategoryExpense);
+                String value1 = editCategory.getText().toString();
+            /*Читаем введенную сумму*/
+                EditText editSum = findViewById(R.id.editText_addSum);
+                String value = editSum.getText().toString();
                 sum = Integer.parseInt(value);
                 sum = sum - (sum * 2);
+            /*добавляем расход в БД таблицу EXPENSE*/
+                ContentValues expenseValues = new ContentValues();
+                expenseValues.put(KEY_DATE, dateString);
+                expenseValues.put(KEY_NAME, value1);
+                expenseValues.put(KEY_SUM, sum); //введите сумму
+                db.insert(TABLE_EXPENSE, null, expenseValues);
+            /*добавляем категориб в БД таблицу EXPENSE_CATEGORY*/
+                ContentValues expenseValues1 = new ContentValues();
+                expenseValues1.put(KEY_NAME, value1);
+                db.insert(TABLE_EXPENSE_CATEGORY, null, expenseValues1);
+                Toast.makeText(ExpenseActivity.this, "расход добавлен", Toast.LENGTH_SHORT).show();
+            /*переход в ExpenseListActivity*/
+                Intent intent = new Intent(ExpenseActivity.this, ExpenseListActivity.class);
+                startActivity(intent);
+            }
+        });
 
-                /*Читаем введенную категорию расходов*/
-                final EditText editCategory = findViewById(R.id.editText_addCategoryExpense);
-                final String value1 = editCategory.getText().toString();
+    /*ВЕТКА 2 -  пользователь выбирает категорию из списка*/
 
-                /*Пользователь выбирает категорию из списка*/
-                if (editCategory.length() > 1) {
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int i, long l) {
+                final String value2 = (String) ((TextView) view).getText();
+                Toast.makeText(getApplicationContext(), value2, Toast.LENGTH_SHORT).show();
 
-                /*добавляем расход в БД таблицу EXPENSE*/
-                    ContentValues expenseValues = new ContentValues();
-                    expenseValues.put(KEY_DATE, dateString);
-                    expenseValues.put(KEY_NAME, value1);
-                    expenseValues.put(KEY_SUM, sum); //введите сумму
-                    db.insert(TABLE_EXPENSE, null, expenseValues);
+            /*BUTTON добавить расход / добавлять будем в таблицу expense*/
+                mButtonAddExpense = findViewById(R.id.button_expense2);
+                mButtonAddExpense.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        db = getBaseContext().openOrCreateDatabase(DB_NAME, MODE_PRIVATE, null);
+                    /*Читаем введенную сумму*/
+                        EditText editSum = findViewById(R.id.editText_addSum);
+                        String value = editSum.getText().toString();
+                        sum = Integer.parseInt(value);
+                        sum = sum - (sum * 2);
 
-                /*добавляем категориб в БД таблицу EXPENSE_CATEGORY*/
-                    ContentValues expenseValues1 = new ContentValues();
-                    expenseValues1.put(KEY_NAME, value1);
-                    db.insert(TABLE_EXPENSE_CATEGORY, null, expenseValues1);
-
-                    Toast.makeText(ExpenseActivity.this, "расход добавлен", Toast.LENGTH_SHORT).show();
-                /*возврат в MainActivity*/
-                    Intent intent = new Intent(ExpenseActivity.this, MainActivity.class);
-                    startActivity(intent);
-
-                } else {
-                    listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(AdapterView<?> parent, View view, int i, long l) {
-                            String value2 = (String) ((TextView) view).getText();
-                            Toast.makeText(getApplicationContext(), value2, Toast.LENGTH_SHORT).show();
-
-                    /*добавляем расход в БД таблицу EXPENSE*/
+                    /*проверка на наличие категории в БД*/
+                        cursor = db.query(TABLE_EXPENSE_CATEGORY, new String[]{KEY_NAME}, KEY_NAME +" = ?", new String[]{value2},null,null, null);
+                    /*если cursor - true, то в категорию заноситься новая запись т.к. ранее такой категории не было*/
+                        if (!cursor.moveToFirst()){
+                            Log.d(TAG, " курсор не NULL");
+                        /*добавляем расход в БД таблицу EXPENSE*/
                             ContentValues expenseValues = new ContentValues();
                             expenseValues.put(KEY_DATE, dateString);
                             expenseValues.put(KEY_NAME, value2);
                             expenseValues.put(KEY_SUM, sum); //введите сумму
                             db.insert(TABLE_EXPENSE, null, expenseValues);
-
-                    /*добавляем категорию в БД таблицу EXPENSE_CATEGORY*/
+                        /*добавляем категорию в БД таблицу EXPENSE_CATEGORY*/
                             ContentValues expenseValues1 = new ContentValues();
                             expenseValues1.put(KEY_NAME, value2);
                             db.insert(TABLE_EXPENSE_CATEGORY, null, expenseValues1);
-
                             Toast.makeText(ExpenseActivity.this, "расход добавлен", Toast.LENGTH_SHORT).show();
-                    /*возврат в MainActivity*/
-                            Intent intent = new Intent(ExpenseActivity.this, MainActivity.class);
+                        /*возврат в MainActivity*/
+                            Intent intent = new Intent(ExpenseActivity.this, ExpenseListActivity.class);
+                            startActivity(intent);
+                    /*в данном случае в БД заносится только запись расхода */
+                        }else{
+                        /*добавляем расход в БД таблицу EXPENSE*/
+                            ContentValues expenseValues = new ContentValues();
+                            expenseValues.put(KEY_DATE, dateString);
+                            expenseValues.put(KEY_NAME, value2);
+                            expenseValues.put(KEY_SUM, sum); //введите сумму
+                            db.insert(TABLE_EXPENSE, null, expenseValues);
+                        /*возврат в MainActivity*/
+                            Intent intent = new Intent(ExpenseActivity.this, ExpenseListActivity.class);
                             startActivity(intent);
                         }
-                    });
-                }
+                    }
+                });
             }
         });
-//         /*Прячем клавиатуру*/
-//        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-//        if (imm != null) {
-//            imm.hideSoftInputFromWindow(mButtonAddCategoryExpense.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-//        }
     }
 
     @Override
@@ -155,6 +171,14 @@ public class ExpenseActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "onDestroy called");
+        if (cursor != null){
+            cursor.close();
+        }
+        if (db != null){
+            db.close();
+        }
+        Log.d(TAG, "onDestroy cursor.close()");
+        Log.d(TAG, "onDestroy db.close()");
     }
 
     @Override
@@ -167,6 +191,7 @@ public class ExpenseActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         Log.d(TAG, "onStop called");
+
     }
 
     @Override
@@ -174,8 +199,14 @@ public class ExpenseActivity extends AppCompatActivity {
         super.onRestart();
         Log.d(TAG, "onRestart called");
     }
-
 }
+
+
+//         /*Прячем клавиатуру*/
+//        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+//        if (imm != null) {
+//            imm.hideSoftInputFromWindow(mButtonAddCategoryExpense.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+//        }
 
 
 //    //кнопка добавить категорию НАЧАЛО
@@ -220,10 +251,6 @@ public class ExpenseActivity extends AppCompatActivity {
 //
 //        }
 //        });
-
-
-
-
 
 
 

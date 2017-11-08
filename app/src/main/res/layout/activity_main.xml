@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#5ED2B8"
+    android:background="#9ED2B8"
     tools:context="com.example.alex.cye2.MainActivity">
 
 
@@ -16,7 +16,7 @@
         android:layout_marginRight="8dp"
 
         android:layout_marginTop="8dp"
-        android:text="TextView"
+        android:text="Cумма баланса"
         android:textAppearance="?android:attr/textAppearanceLarge"
         app:layout_constraintHorizontal_bias="0.501"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -36,58 +36,12 @@
         android:id="@+id/button_expense"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
         android:layout_marginTop="8dp"
         android:text="@string/button_expense"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toLeftOf="@+id/button2"
         app:layout_constraintTop_toBottomOf="@+id/textView_balance" />
-
-    <Button
-        android:id="@+id/button2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="9dp"
-        android:text="Button"
-        app:layout_constraintLeft_toRightOf="@+id/button_expense"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView_balance" />
-
-    <TextView
-        android:id="@+id/textView_expenseCategory"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:text="Магазин"
-        app:layout_constraintLeft_toRightOf="@+id/textView_dataOfOperation"
-        app:layout_constraintRight_toLeftOf="@+id/textView_expenseCost"
-        app:layout_constraintTop_toBottomOf="@+id/button_expense" />
-
-    <TextView
-        android:id="@+id/textView_expenseCost"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="сумма расхода"
-        app:layout_constraintBaseline_toBaselineOf="@+id/textView_expenseCategory"
-        app:layout_constraintLeft_toRightOf="@+id/textView_expenseCategory"
-        app:layout_constraintRight_toLeftOf="@+id/button_again_expense" />
-
-    <TextView
-        android:id="@+id/textView_dataOfOperation"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Дата операции"
-        app:layout_constraintBaseline_toBaselineOf="@+id/textView_expenseCategory"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toLeftOf="@+id/textView_expenseCategory" />
-
-    <Button
-        android:id="@+id/button_again_expense"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="еще"
-        app:layout_constraintBaseline_toBaselineOf="@+id/textView_expenseCategory"
-        app:layout_constraintLeft_toRightOf="@+id/textView_expenseCost"
-        app:layout_constraintRight_toRightOf="parent" />
 
     <Button
         android:id="@+id/button_expenseCategory"
@@ -96,10 +50,10 @@
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginTop="8dp"
-        android:text="Button"
+        android:text="Категории расходов"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_again_expense" />
+        app:layout_constraintTop_toBottomOf="@+id/button_expense" />
 
     <Button
         android:id="@+id/button"
@@ -108,9 +62,34 @@
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="Вызов списка рас / ExpenseList Act"
+        android:text="Список всех расходов"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/button_expenseCategory" />
+
+    <Button
+        android:id="@+id/button_sumAllExpenses"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="Сумма расходов"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button"
+        android:onClick="buttonSumAllExpenses"/>
+
+    <TextView
+        android:id="@+id/textView_sumAllExpenses"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="Сумма расходов"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button_sumAllExpenses" />
 
 </android.support.constraint.ConstraintLayout>

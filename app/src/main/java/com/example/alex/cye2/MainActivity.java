@@ -1,6 +1,8 @@
 package com.example.alex.cye2;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -11,12 +13,17 @@ import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
 
+import static com.example.alex.cye2.CyeDBHelper.DB_NAME;
+import static com.example.alex.cye2.CyeDBHelper.TABLE_EXPENSE;
+import static com.example.alex.cye2.CyeDBHelper.TABLE_EXPENSE_CATEGORY;
+
 public class MainActivity extends AppCompatActivity {
 
-    private int mBalance = 1000;
-    private int mExpense = 126;
+    private int mBalance = 100;
+    private int mExpense = 0;
     private long mDate = System.currentTimeMillis();
     private static final String TAG = "MainActivity";
+    private SQLiteDatabase db;
 
     private Button mExpenseButton;
     private Button mExpenseCategoryButton;
@@ -33,16 +40,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "onCreate called");
         setContentView(R.layout.activity_main);
 
-        mBalance = mBalance - mExpense;
 
-        TextView textViewBalance = findViewById(R.id.textView_balance);
-        textViewBalance.setText(String.valueOf(" " + mBalance));
-
-        TextView textViewExpense = findViewById(R.id.textView_expenseCost);
-        textViewExpense.setText(String.valueOf("- "+ mExpense));
-
-        TextView textViewDataOfOperation = findViewById(R.id.textView_dataOfOperation);
-        textViewDataOfOperation.setText(dateString);
 
         mExpenseButton = findViewById(R.id.button_expense);
         mExpenseButton.setOnClickListener(new View.OnClickListener() {
@@ -79,12 +77,19 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         Log.d(TAG, "onStart called");
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         Log.d(TAG, "onResume called");
+        /*обновляем состояние баланса в MainActivity */
+        TextView textViewBalance = findViewById(R.id.textView_balance);
+        balance();
+        textViewBalance.setText(" " + String.valueOf(mBalance + mExpense));
+        TextView textView = findViewById(R.id.textView_sumAllExpenses);
+        textView.setText(String.valueOf(mExpense));
     }
 
     @Override
@@ -110,4 +115,23 @@ public class MainActivity extends AppCompatActivity {
         super.onRestart();
         Log.d(TAG, "onRestart called");
     }
+/*кнопка - получаем сумму значений из таблицы EXPENSES столбца SUM*/
+    public void buttonSumAllExpenses(View view) {
+        TextView textView = findViewById(R.id.textView_sumAllExpenses);
+        balance();
+        textView.setText(String.valueOf(mExpense));
+    }
+/* метод для расчета БАЛАНСА*/
+    public void balance (){
+        db = getBaseContext().openOrCreateDatabase(DB_NAME, MODE_PRIVATE, null);
+        Cursor cursor = db.rawQuery("SELECT SUM (sum) FROM "+TABLE_EXPENSE, null);
+        if(cursor.moveToFirst())
+            mExpense = cursor.getInt(0);
+        else
+            mExpense = -1;
+        cursor.close();
+        db.close();
+    }
+
+
 }
